@@ -20,6 +20,14 @@ async function getLastSeenValues() {
 function getTokenURL(tokenAddress) {
     return "https://etherscan.io/token/" + tokenAddress;
 }
+function getBlockUrlEtherscan(blockNumber) {
+    return "https://etherscan.io/block/" + blockNumber;
+}
+function getBlockLinkEtherscan(blockNumber) {
+    const url = getBlockUrlEtherscan(blockNumber);
+    const link = hyperlink(url, blockNumber.toString());
+    return link;
+}
 function getPoolURL(poolAddress) {
     return "https://etherscan.io/address/" + poolAddress;
 }
@@ -93,6 +101,45 @@ function getDollarAddOn(amountStr) {
         return ` ($${amount.toFixed(2)})`;
     }
 }
+function formatExecutionPrice(price) {
+    if (price > 100) {
+        // For numbers greater than 100, round to 2 decimal places
+        return price.toFixed(2);
+    }
+    else if (price < 1) {
+        const priceStr = price.toString();
+        // Check if price is less than 1 and starts with leading 9's after the decimal point
+        const leading9sMatch = priceStr.match(/0\.9*/);
+        if (leading9sMatch) {
+            const leading9s = leading9sMatch[0];
+            // Calculate the number of characters to include: all leading 9's plus two more digits
+            const endIndex = leading9s.length + 3;
+            // Extract the substring and parse it to ensure correct rounding
+            return parseFloat(priceStr.substring(0, endIndex)).toString();
+        }
+        else {
+            // If there are no leading 9's, round to 4 decimal places
+            return price.toFixed(4);
+        }
+    }
+    else {
+        // For numbers between 1 and 100, round to 4 decimal places
+        return price.toFixed(4);
+    }
+}
+function findUnderstandableExecutionPrice(priceA, priceB) {
+    let price = 0;
+    if (priceA > 2) {
+        price = priceA;
+    }
+    else if (priceB > 2) {
+        price = priceB;
+    }
+    else {
+        price = Math.min(priceA, priceB);
+    }
+    return formatExecutionPrice(price);
+}
 const solverLookup = solverLabels.reduce((acc, solver) => {
     acc[solver.Address.toLowerCase()] = solver.Label;
     return acc;
@@ -140,14 +187,20 @@ export async function buildGeneralTransactionMessage(enrichedTransaction, value)
     }
     let transactedCoinInfo = "";
     let txType = "";
+    const blockLinkEtherscan = getBlockLinkEtherscan(enrichedTransaction.block_number);
+    let priceAndBlocknumberTag = `Block:${blockLinkEtherscan} | Index: ${enrichedTransaction.tx_position}`;
     if (enrichedTransaction.transaction_type === "swap") {
-        txType = "Swap";
+        txType = "🚀 Swap";
         let amountLeavingWallet = enrichedTransaction.coins_leaving_wallet[0].amount;
         let coinLeavingWalletUrl = getTokenURL(enrichedTransaction.coins_leaving_wallet[0].address);
         let coinLeavingWalletName = enrichedTransaction.coins_leaving_wallet[0].name;
         let amountEnteringWallet = enrichedTransaction.coins_entering_wallet[0].amount;
         let coinEnteringWalletUrl = getTokenURL(enrichedTransaction.coins_entering_wallet[0].address);
         let coinEnteringWalletName = enrichedTransaction.coins_entering_wallet[0].name;
+        let priceA = amountLeavingWallet / amountEnteringWallet;
+        let priceB = amountEnteringWallet / amountLeavingWallet;
+        let executionPrice = findUnderstandableExecutionPrice(priceA, priceB);
+        priceAndBlocknumberTag = `Execution Price: ${executionPrice}\nBlock:${blockLinkEtherscan} | Index: ${enrichedTransaction.tx_position}`;
         transactedCoinInfo = `${formatForPrint(amountLeavingWallet)}${hyperlink(coinLeavingWalletUrl, coinLeavingWalletName)} ➛ ${formatForPrint(amountEnteringWallet)}${hyperlink(coinEnteringWalletUrl, coinEnteringWalletName)}`;
     }
     else if (enrichedTransaction.transaction_type === "remove") {
@@ -162,7 +215,7 @@ export async function buildGeneralTransactionMessage(enrichedTransaction, value)
         transactedCoinInfo = `${coinsDetail.join(" | ")}`;
     }
     else if (enrichedTransaction.transaction_type === "deposit") {
-        txType = "Deposit";
+        txType = "🚀 Deposit";
         let coinsDetail = [];
         if (enrichedTransaction.coins_entering_wallet.length > 0) {
             coinsDetail = enrichedTransaction.coins_entering_wallet.map((coin) => `${formatForPrint(coin.amount)}${hyperlink(getTokenURL(coin.address), coin.name)}`);
@@ -187,10 +240,15 @@ export async function buildGeneralTransactionMessage(enrichedTransaction, value)
         shortenActor = solverLabel;
         emoji = "🐮🐮🐮";
     }
+    let firstLine = `${txType} ${transactedCoinInfo}${DOLLAR_ADDON}`;
+    if (enrichedTransaction.transaction_type === "remove") {
+        firstLine = `${txType} ${transactedCoinInfo}${DOLLAR_ADDON}`;
+    }
     return `
-    🚀${txType} ${transactedCoinInfo}${DOLLAR_ADDON}
-Links:${POOL} |${hyperlink(txHashUrl, "etherscan.io")}
-${actorType}:${hyperlink(actorURL, shortenActor)} called Contract:${hyperlink(LABEL_URL_ETHERSCAN, labelName)} ${emoji}
+${firstLine}
+${priceAndBlocknumberTag}
+${actorType}:${hyperlink(actorURL, shortenActor)} called Contract:${hyperlink(LABEL_URL_ETHERSCAN, labelName)}
+Links:${POOL} |${hyperlink(txHashUrl, "etherscan.io")} ${emoji}
   `;
 }
 function getTimeMessage(timestamp) {

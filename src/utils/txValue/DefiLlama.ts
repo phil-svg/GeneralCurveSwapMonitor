@@ -29,3 +29,21 @@ export async function getCurrentTokenPriceFromDefiLlama(token: string): Promise<
 
   return null;
 }
+
+export async function getHistoricalTokenPriceFromDefiLlama(tokenAddress: string, unixTimestamp: number): Promise<number | null> {
+  try {
+    const url = `https://coins.llama.fi/prices/historical/${unixTimestamp}/ethereum:${tokenAddress}?searchWidth=4h`;
+    const response = await axios.get<LlamaPriceResponse>(url);
+
+    const fullTokenKey = `ethereum:${tokenAddress}`;
+    if (response.data.coins[fullTokenKey]) {
+      return response.data.coins[fullTokenKey].price;
+    } else {
+      console.log(`No historical price data for token: ${tokenAddress} at timestamp: ${unixTimestamp}`);
+    }
+  } catch (err) {
+    console.log(`Failed to fetch historical price from DefiLlama for token: ${tokenAddress} at timestamp: ${unixTimestamp}, error: ${err}`);
+  }
+
+  return null;
+}

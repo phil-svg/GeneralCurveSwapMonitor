@@ -1,7 +1,7 @@
 import { buildGeneralTransactionMessage } from "../telegram/TelegramBot.js";
 import { io } from "socket.io-client";
 import { priceTransaction } from "../txValue/PriceTransaction.js";
-import { FILTER_VALUE, url } from "../../GeneralSwapMonitor.js";
+import { FILTER_VALUE_DEXDEX, url } from "../../GeneralSwapMonitor.js";
 import { solverLabels } from "../whitelisting/Whitelist.js";
 const processedTxIds = new Set();
 import fs from "fs";
@@ -73,7 +73,7 @@ export async function connectToWebsocket(eventEmitter) {
                 const value = await priceTransaction(enrichedTransaction);
                 const whitelistedAddresses = solverLabels.map((solver) => solver.Address.toLowerCase());
                 if (value) {
-                    if (value < FILTER_VALUE && !whitelistedAddresses.includes(enrichedTransaction.poolAddress.toLowerCase())) {
+                    if (value < FILTER_VALUE_DEXDEX && !whitelistedAddresses.includes(enrichedTransaction.poolAddress.toLowerCase())) {
                         return;
                     }
                     const message = await buildGeneralTransactionMessage(enrichedTransaction, value);
