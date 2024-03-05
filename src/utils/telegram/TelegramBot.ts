@@ -128,17 +128,24 @@ function formatExecutionPrice(price: number): string {
   }
 }
 
-function findUnderstandableExecutionPrice(priceA: number, priceB: number): string {
+function findUnderstandableExecutionPriceAndDenomination(priceA: number, priceB: number, coinLeavingWalletName: string, coinEnteringWalletName: string): [string, string] {
   let price = 0;
+  let denomination = "";
+
   if (priceA > 2) {
     price = priceA;
+    denomination = `${coinEnteringWalletName}/${coinLeavingWalletName}`;
   } else if (priceB > 2) {
     price = priceB;
+    denomination = `${coinLeavingWalletName}/${coinEnteringWalletName}`;
   } else {
     price = Math.min(priceA, priceB);
+    // Decide the denomination based on which price (A or B) is smaller
+    denomination = price === priceA ? `${coinLeavingWalletName}/${coinEnteringWalletName}` : `${coinEnteringWalletName}/${coinLeavingWalletName}`;
   }
 
-  return formatExecutionPrice(price);
+  const formattedPrice = formatExecutionPrice(price);
+  return [formattedPrice, denomination.toLowerCase()]; // Return both values as an array
 }
 
 type SolverLookup = { [address: string]: string };
@@ -215,8 +222,8 @@ export async function buildGeneralTransactionMessage(enrichedTransaction: Enrich
     let coinEnteringWalletName = enrichedTransaction.coins_entering_wallet[0].name;
     let priceA = amountLeavingWallet / amountEnteringWallet;
     let priceB = amountEnteringWallet / amountLeavingWallet;
-    let executionPrice = findUnderstandableExecutionPrice(priceA, priceB);
-    priceAndBlocknumberTag = `Execution Price: ${executionPrice}\nBlock:${blockLinkEtherscan} | Index: ${enrichedTransaction.tx_position}`;
+    let [executionPrice, denominationTag] = findUnderstandableExecutionPriceAndDenomination(priceA, priceB, coinLeavingWalletName, coinEnteringWalletName);
+    priceAndBlocknumberTag = `Execution Price: ${executionPrice} (${denominationTag})\nBlock:${blockLinkEtherscan} | Index: ${enrichedTransaction.tx_position}`;
     transactedCoinInfo = `${formatForPrint(amountLeavingWallet)}${hyperlink(coinLeavingWalletUrl, coinLeavingWalletName)} ➛ ${formatForPrint(amountEnteringWallet)}${hyperlink(
       coinEnteringWalletUrl,
       coinEnteringWalletName
