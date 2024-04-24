@@ -1,27 +1,27 @@
-import TelegramBot from "node-telegram-bot-api";
-import dotenv from "dotenv";
-import { labels } from "../../Labels.js";
-import { solverLabels } from "../whitelisting/Whitelist.js";
-import { readFileAsync } from "../websocket/GeneralTxWebsocket.js";
-dotenv.config({ path: "../.env" });
+import TelegramBot from 'node-telegram-bot-api';
+import dotenv from 'dotenv';
+import { labels } from '../../Labels.js';
+import { solverLabels } from '../whitelisting/Whitelist.js';
+import { readFileAsync } from '../websocket/GeneralTxWebsocket.js';
+dotenv.config({ path: '../.env' });
 async function getLastSeenValues() {
     try {
-        const data = JSON.parse(await readFileAsync("lastSeen.json", "utf-8"));
+        const data = JSON.parse(await readFileAsync('lastSeen.json', 'utf-8'));
         return {
             txHash: data.txHash,
             txTimestamp: new Date(data.txTimestamp),
         };
     }
     catch (error) {
-        console.error("Error reading last seen data from file:", error);
+        console.error('Error reading last seen data from file:', error);
         return null;
     }
 }
 function getTokenURL(tokenAddress) {
-    return "https://etherscan.io/token/" + tokenAddress;
+    return 'https://etherscan.io/token/' + tokenAddress;
 }
 function getBlockUrlEtherscan(blockNumber) {
-    return "https://etherscan.io/block/" + blockNumber;
+    return 'https://etherscan.io/block/' + blockNumber;
 }
 function getBlockLinkEtherscan(blockNumber) {
     const url = getBlockUrlEtherscan(blockNumber);
@@ -29,19 +29,19 @@ function getBlockLinkEtherscan(blockNumber) {
     return link;
 }
 function getPoolURL(poolAddress) {
-    return "https://etherscan.io/address/" + poolAddress;
+    return 'https://etherscan.io/address/' + poolAddress;
 }
 function getTxHashURLfromEtherscan(txHash) {
-    return "https://etherscan.io/tx/" + txHash;
+    return 'https://etherscan.io/tx/' + txHash;
 }
 function getTxHashURLfromEigenPhi(txHash) {
-    return "https://eigenphi.io/mev/eigentx/" + txHash;
+    return 'https://eigenphi.io/mev/eigentx/' + txHash;
 }
 function getBuyerURL(buyerAddress) {
-    return "https://etherscan.io/address/" + buyerAddress;
+    return 'https://etherscan.io/address/' + buyerAddress;
 }
 function formatForPrint(someNumber) {
-    if (typeof someNumber === "string" && someNumber.includes(","))
+    if (typeof someNumber === 'string' && someNumber.includes(','))
         return someNumber;
     if (someNumber > 100) {
         someNumber = Number(Number(someNumber).toFixed(0)).toLocaleString();
@@ -52,7 +52,7 @@ function formatForPrint(someNumber) {
     return someNumber;
 }
 function getShortenNumber(amountStr) {
-    let amount = parseFloat(amountStr.replace(/,/g, ""));
+    let amount = parseFloat(amountStr.replace(/,/g, ''));
     //amount = roundToNearest(amount);
     if (amount >= 1000000) {
         const millionAmount = amount / 1000000;
@@ -77,7 +77,7 @@ function getShortenNumber(amountStr) {
     }
 }
 function getDollarAddOn(amountStr) {
-    let amount = parseFloat(amountStr.replace(/,/g, ""));
+    let amount = parseFloat(amountStr.replace(/,/g, ''));
     //amount = roundToNearest(amount);
     if (amount >= 1000000) {
         const millionAmount = amount / 1000000;
@@ -129,7 +129,7 @@ function formatExecutionPrice(price) {
 }
 function findUnderstandableExecutionPriceAndDenomination(priceA, priceB, coinLeavingWalletName, coinEnteringWalletName) {
     let price = 0;
-    let denomination = "";
+    let denomination = '';
     if (priceA > 2) {
         price = priceA;
         denomination = `${coinEnteringWalletName}/${coinLeavingWalletName}`;
@@ -141,7 +141,10 @@ function findUnderstandableExecutionPriceAndDenomination(priceA, priceB, coinLea
     else {
         price = Math.min(priceA, priceB);
         // Decide the denomination based on which price (A or B) is smaller
-        denomination = price === priceA ? `${coinLeavingWalletName}/${coinEnteringWalletName}` : `${coinEnteringWalletName}/${coinLeavingWalletName}`;
+        denomination =
+            price === priceA
+                ? `${coinLeavingWalletName}/${coinEnteringWalletName}`
+                : `${coinEnteringWalletName}/${coinLeavingWalletName}`;
     }
     const formattedPrice = formatExecutionPrice(price);
     return [formattedPrice, denomination.toLowerCase()]; // Return both values as an array
@@ -151,7 +154,7 @@ const solverLookup = solverLabels.reduce((acc, solver) => {
     return acc;
 }, {});
 function hyperlink(link, name) {
-    return "<a href='" + link + "/'> " + name + "</a>";
+    return "<a href='" + link + "/'> " + name + '</a>';
 }
 let sentMessages = {};
 export function send(bot, message, groupID) {
@@ -160,8 +163,8 @@ export function send(bot, message, groupID) {
         // console.log("This message has already been sent to this group in the past 30 seconds.");
         return;
     }
-    bot.sendMessage(groupID, message, { parse_mode: "HTML", disable_web_page_preview: "true" });
-    if (!message.startsWith("last seen")) {
+    bot.sendMessage(groupID, message, { parse_mode: 'HTML', disable_web_page_preview: 'true' });
+    if (!message.startsWith('last seen')) {
         // Track the message as sent
         sentMessages[key] = true;
         // Delete the message from tracking after 30 seconds
@@ -171,7 +174,7 @@ export function send(bot, message, groupID) {
     }
 }
 function shortenAddress(address) {
-    return address.slice(0, 5) + ".." + address.slice(-2);
+    return address.slice(0, 7) + '..' + address.slice(-2);
 }
 function getAddressName(address) {
     // Find label for address
@@ -188,15 +191,15 @@ export async function buildGeneralTransactionMessage(enrichedTransaction, value)
     const LABEL_URL_ETHERSCAN = getPoolURL(enrichedTransaction.called_contract_by_user);
     const txHashUrl = getTxHashURLfromEtherscan(enrichedTransaction.tx_hash);
     let labelName = enrichedTransaction.calledContractLabel;
-    if (labelName.startsWith("0x") && labelName.length === 42) {
+    if (labelName.startsWith('0x') && labelName.length === 42) {
         labelName = shortenAddress(labelName);
     }
-    let transactedCoinInfo = "";
-    let txType = "";
+    let transactedCoinInfo = '';
+    let txType = '';
     const blockLinkEtherscan = getBlockLinkEtherscan(enrichedTransaction.block_number);
     let priceAndBlocknumberTag = `Block:${blockLinkEtherscan} | Index: ${enrichedTransaction.tx_position}`;
-    if (enrichedTransaction.transaction_type === "swap") {
-        txType = "🚀 Swap";
+    if (enrichedTransaction.transaction_type === 'swap') {
+        txType = '🚀 Swap';
         let amountLeavingWallet = enrichedTransaction.coins_leaving_wallet[0].amount;
         let coinLeavingWalletUrl = getTokenURL(enrichedTransaction.coins_leaving_wallet[0].address);
         let coinLeavingWalletName = enrichedTransaction.coins_leaving_wallet[0].name;
@@ -209,8 +212,8 @@ export async function buildGeneralTransactionMessage(enrichedTransaction, value)
         priceAndBlocknumberTag = `Execution Price: ${executionPrice} (${denominationTag})\nBlock:${blockLinkEtherscan} | Index: ${enrichedTransaction.tx_position}`;
         transactedCoinInfo = `${formatForPrint(amountLeavingWallet)}${hyperlink(coinLeavingWalletUrl, coinLeavingWalletName)} ➛ ${formatForPrint(amountEnteringWallet)}${hyperlink(coinEnteringWalletUrl, coinEnteringWalletName)}`;
     }
-    else if (enrichedTransaction.transaction_type === "remove") {
-        txType = "Remove";
+    else if (enrichedTransaction.transaction_type === 'remove') {
+        txType = 'Remove';
         let coinsDetail = [];
         if (enrichedTransaction.coins_leaving_wallet.length > 0) {
             coinsDetail = enrichedTransaction.coins_leaving_wallet.map((coin) => `${formatForPrint(coin.amount)}${hyperlink(getTokenURL(coin.address), coin.name)}`);
@@ -218,10 +221,10 @@ export async function buildGeneralTransactionMessage(enrichedTransaction, value)
         else {
             coinsDetail = enrichedTransaction.coins_entering_wallet.map((coin) => `${formatForPrint(coin.amount)}${hyperlink(getTokenURL(coin.address), coin.name)}`);
         }
-        transactedCoinInfo = `${coinsDetail.join(" | ")}`;
+        transactedCoinInfo = `${coinsDetail.join(' | ')}`;
     }
-    else if (enrichedTransaction.transaction_type === "deposit") {
-        txType = "🚀 Deposit";
+    else if (enrichedTransaction.transaction_type === 'deposit') {
+        txType = '🚀 Deposit';
         let coinsDetail = [];
         if (enrichedTransaction.coins_entering_wallet.length > 0) {
             coinsDetail = enrichedTransaction.coins_entering_wallet.map((coin) => `${formatForPrint(coin.amount)}${hyperlink(getTokenURL(coin.address), coin.name)}`);
@@ -229,59 +232,59 @@ export async function buildGeneralTransactionMessage(enrichedTransaction, value)
         else {
             coinsDetail = enrichedTransaction.coins_leaving_wallet.map((coin) => `${formatForPrint(coin.amount)}${hyperlink(getTokenURL(coin.address), coin.name)}`);
         }
-        transactedCoinInfo = `${coinsDetail.join(" | ")}`;
+        transactedCoinInfo = `${coinsDetail.join(' | ')}`;
     }
     else {
         return null;
     }
-    let actorType = "User";
+    let actorType = 'User';
     let actorURL = getBuyerURL(enrichedTransaction.trader);
     let shortenActor = getAddressName(enrichedTransaction.trader);
-    let emoji = "🦙🦙🦙";
+    let emoji = '🦙🦙🦙';
     // check if the from address is a solver
     let solverLabel = solverLookup[enrichedTransaction.from.toLowerCase()];
     if (solverLabel) {
-        actorType = "Solver";
+        actorType = 'Solver';
         actorURL = getBuyerURL(enrichedTransaction.from);
         shortenActor = solverLabel;
-        emoji = "🐮🐮🐮";
+        emoji = '🐮🐮🐮';
     }
     let firstLine = `${txType} ${transactedCoinInfo}${DOLLAR_ADDON}`;
-    if (enrichedTransaction.transaction_type === "remove") {
+    if (enrichedTransaction.transaction_type === 'remove') {
         firstLine = `${txType} ${transactedCoinInfo}${DOLLAR_ADDON}`;
     }
     return `
 ${firstLine}
 ${priceAndBlocknumberTag}
 ${actorType}:${hyperlink(actorURL, shortenActor)} called Contract:${hyperlink(LABEL_URL_ETHERSCAN, labelName)}
-Links:${POOL} |${hyperlink(txHashUrl, "etherscan.io")} ${emoji}
+Links:${POOL} |${hyperlink(txHashUrl, 'etherscan.io')} ${emoji}
   `;
 }
 function getTimeMessage(timestamp) {
     if (!timestamp)
-        return "never seen"; // If no transaction was seen
+        return 'never seen'; // If no transaction was seen
     const differenceInSeconds = (new Date().getTime() - timestamp.getTime()) / 1000;
     if (differenceInSeconds < 60) {
         const seconds = Math.floor(differenceInSeconds);
-        return `${seconds} ${seconds === 1 ? "second" : "seconds"} ago`;
+        return `${seconds} ${seconds === 1 ? 'second' : 'seconds'} ago`;
     }
     if (differenceInSeconds < 3600) {
         const minutes = Math.floor(differenceInSeconds / 60);
-        return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
+        return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
     }
     const hours = Math.floor(differenceInSeconds / 3600);
-    return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+    return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
 }
 function getLastSeenMessage(txHash, timestamp) {
     const timeMessage = getTimeMessage(timestamp);
-    const message = `I've last seen a${hyperlink(getTxHashURLfromEtherscan(txHash), "tx")} ${timeMessage} ser`;
+    const message = `I've last seen a${hyperlink(getTxHashURLfromEtherscan(txHash), 'tx')} ${timeMessage} ser`;
     return message;
 }
 let intervalId = null;
 async function getLastSeenMessageContent() {
     const lastSeenValues = await getLastSeenValues();
     if (!lastSeenValues || !lastSeenValues.txHash) {
-        return "dunno";
+        return 'dunno';
     }
     return getLastSeenMessage(lastSeenValues.txHash, lastSeenValues.txTimestamp);
 }
@@ -293,7 +296,7 @@ async function botMonitoringIntervalPrint(bot) {
     const groupID = -1001929399603;
     const sendBotMessage = async () => {
         const message = await getLastSeenMessageContent();
-        bot.sendMessage(groupID, message, { parse_mode: "HTML", disable_web_page_preview: "true" });
+        bot.sendMessage(groupID, message, { parse_mode: 'HTML', disable_web_page_preview: 'true' });
     };
     const currentMinute = new Date().getMinutes();
     let minutesUntilNextQuarter = 15 - (currentMinute % 15);
@@ -305,32 +308,32 @@ async function botMonitoringIntervalPrint(bot) {
 }
 export async function processLastSeen(eventEmitter) {
     const message = await getLastSeenMessageContent();
-    eventEmitter.emit("newMessage", message);
+    eventEmitter.emit('newMessage', message);
 }
 export async function telegramBotMain(env, eventEmitter) {
-    eventEmitter.on("newMessage", (message) => {
+    eventEmitter.on('newMessage', (message) => {
         if (groupID) {
             send(bot, message, parseInt(groupID));
         }
     });
     let telegramGroupToken;
     let groupID;
-    if (env == "prod") {
+    if (env == 'prod') {
         telegramGroupToken = process.env.TELEGRAM_GENERAL_SWAP_MONITOR_PROD_KEY;
         groupID = process.env.TELEGRAM_PROD_GROUP_ID;
     }
-    if (env == "test") {
+    if (env == 'test') {
         telegramGroupToken = process.env.TELEGRAM_GENERAL_SWAP_MONITOR_TEST_KEY;
         groupID = process.env.TELEGRAM_TEST_GROUP_ID;
     }
     const bot = new TelegramBot(telegramGroupToken, { polling: true });
     botMonitoringIntervalPrint(bot);
-    bot.on("message", async (msg) => {
-        if (msg && msg.text && msg.text.toLowerCase() === "bot u with us") {
+    bot.on('message', async (msg) => {
+        if (msg && msg.text && msg.text.toLowerCase() === 'bot u with us') {
             await new Promise((resolve) => setTimeout(resolve, 500));
-            bot.sendMessage(msg.chat.id, "yes ser");
+            bot.sendMessage(msg.chat.id, 'yes ser');
         }
-        if (msg && msg.text && msg.text.toLowerCase() === "print last seen") {
+        if (msg && msg.text && msg.text.toLowerCase() === 'print last seen') {
             await new Promise((resolve) => setTimeout(resolve, 500));
             await processLastSeen(eventEmitter);
         }
