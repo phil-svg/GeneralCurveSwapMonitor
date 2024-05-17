@@ -23,8 +23,16 @@ function getTokenURL(tokenAddress) {
 function getBlockUrlEtherscan(blockNumber) {
     return 'https://etherscan.io/block/' + blockNumber;
 }
+function getBlockUrlPayload(blockNumber) {
+    return 'https://payload.de/data/' + blockNumber;
+}
 function getBlockLinkEtherscan(blockNumber) {
     const url = getBlockUrlEtherscan(blockNumber);
+    const link = hyperlink(url, blockNumber.toString());
+    return link;
+}
+function gerBlockLinkPayload(blockNumber) {
+    const url = getBlockUrlPayload(blockNumber);
     const link = hyperlink(url, blockNumber.toString());
     return link;
 }
@@ -197,7 +205,8 @@ export async function buildGeneralTransactionMessage(enrichedTransaction, value)
     let transactedCoinInfo = '';
     let txType = '';
     const blockLinkEtherscan = getBlockLinkEtherscan(enrichedTransaction.block_number);
-    let priceAndBlocknumberTag = `Block:${blockLinkEtherscan} | Index: ${enrichedTransaction.tx_position}`;
+    const blockLinkPayload = gerBlockLinkPayload(enrichedTransaction.block_number);
+    let priceAndBlocknumberTag = `Block:${blockLinkPayload} | Index: ${enrichedTransaction.tx_position}`;
     if (enrichedTransaction.transaction_type === 'swap') {
         txType = '🚀 Swap';
         let amountLeavingWallet = enrichedTransaction.coins_leaving_wallet[0].amount;
@@ -209,7 +218,7 @@ export async function buildGeneralTransactionMessage(enrichedTransaction, value)
         let priceA = amountLeavingWallet / amountEnteringWallet;
         let priceB = amountEnteringWallet / amountLeavingWallet;
         let [executionPrice, denominationTag] = findUnderstandableExecutionPriceAndDenomination(priceA, priceB, coinLeavingWalletName, coinEnteringWalletName);
-        priceAndBlocknumberTag = `Execution Price: ${executionPrice} (${denominationTag})\nBlock:${blockLinkEtherscan} | Index: ${enrichedTransaction.tx_position}`;
+        priceAndBlocknumberTag = `Execution Price: ${executionPrice} (${denominationTag})\nBlock:${blockLinkPayload} | Index: ${enrichedTransaction.tx_position}`;
         transactedCoinInfo = `${formatForPrint(amountLeavingWallet)}${hyperlink(coinLeavingWalletUrl, coinLeavingWalletName)} ➛ ${formatForPrint(amountEnteringWallet)}${hyperlink(coinEnteringWalletUrl, coinEnteringWalletName)}`;
     }
     else if (enrichedTransaction.transaction_type === 'remove') {

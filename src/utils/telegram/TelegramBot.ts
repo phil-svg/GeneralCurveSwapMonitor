@@ -28,8 +28,18 @@ function getBlockUrlEtherscan(blockNumber: number): string {
   return 'https://etherscan.io/block/' + blockNumber;
 }
 
+function getBlockUrlPayload(blockNumber: number): string {
+  return 'https://payload.de/data/' + blockNumber;
+}
+
 function getBlockLinkEtherscan(blockNumber: number): string {
   const url = getBlockUrlEtherscan(blockNumber);
+  const link = hyperlink(url, blockNumber.toString());
+  return link;
+}
+
+function gerBlockLinkPayload(blockNumber: number): string {
+  const url = getBlockUrlPayload(blockNumber);
   const link = hyperlink(url, blockNumber.toString());
   return link;
 }
@@ -220,7 +230,8 @@ export async function buildGeneralTransactionMessage(enrichedTransaction: Enrich
   let transactedCoinInfo = '';
   let txType = '';
   const blockLinkEtherscan = getBlockLinkEtherscan(enrichedTransaction.block_number);
-  let priceAndBlocknumberTag = `Block:${blockLinkEtherscan} | Index: ${enrichedTransaction.tx_position}`;
+  const blockLinkPayload = gerBlockLinkPayload(enrichedTransaction.block_number);
+  let priceAndBlocknumberTag = `Block:${blockLinkPayload} | Index: ${enrichedTransaction.tx_position}`;
 
   if (enrichedTransaction.transaction_type === 'swap') {
     txType = '🚀 Swap';
@@ -238,7 +249,7 @@ export async function buildGeneralTransactionMessage(enrichedTransaction: Enrich
       coinLeavingWalletName,
       coinEnteringWalletName
     );
-    priceAndBlocknumberTag = `Execution Price: ${executionPrice} (${denominationTag})\nBlock:${blockLinkEtherscan} | Index: ${enrichedTransaction.tx_position}`;
+    priceAndBlocknumberTag = `Execution Price: ${executionPrice} (${denominationTag})\nBlock:${blockLinkPayload} | Index: ${enrichedTransaction.tx_position}`;
     transactedCoinInfo = `${formatForPrint(amountLeavingWallet)}${hyperlink(
       coinLeavingWalletUrl,
       coinLeavingWalletName
