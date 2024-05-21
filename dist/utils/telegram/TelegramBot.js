@@ -269,6 +269,31 @@ ${actorType}:${hyperlink(actorURL, shortenActor)} called Contract:${hyperlink(LA
 Links:${POOL} |${hyperlink(txHashUrl, 'etherscan.io')} ${emoji}
   `;
 }
+function determineSenderTagForFeeDistributor(sender) {
+    const potentialFroms = {
+        'Stable Deposit Burner': '0x1D56495c76d99435d10ecd5b0C3bd6a8EE7cC3bb',
+        'Swap Router': '0x99a58482BD75cbab83b27EC03CA68fF489b5788f',
+        'Pool Owner': '0xeCb456EA5365865EbAb8a2661B0c503410e9B347',
+    };
+    const senderLower = sender.toLowerCase();
+    for (const [key, value] of Object.entries(potentialFroms)) {
+        if (value.toLowerCase() === senderLower) {
+            return key;
+        }
+    }
+    return shortenAddress(sender);
+}
+export async function buildFeeDistributorMessage(txHash, sender, value) {
+    const senderUrl = getBuyerURL(sender);
+    const senderTag = determineSenderTagForFeeDistributor(sender);
+    const txHashUrl = getTxHashURLfromEtherscan(txHash);
+    const feeDistributorAddress = '0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc';
+    const feeDistributorUrl = getBuyerURL(feeDistributorAddress);
+    return `
+💰${hyperlink(feeDistributorUrl, 'Fee Distributor')} received ${formatForPrint(value)} 3CRV from${hyperlink(senderUrl, senderTag)}
+Links:${hyperlink(txHashUrl, 'txHash')} 🦙🦙🦙
+  `;
+}
 function getTimeMessage(timestamp) {
     if (!timestamp)
         return 'never seen'; // If no transaction was seen
@@ -348,87 +373,4 @@ export async function telegramBotMain(env, eventEmitter) {
         }
     });
 }
-/*
-Example: Swap
-{
-  tx_id: 116337,
-  pool_id: 661,
-  event_id: 356534,
-  tx_hash: '0xd11de3abb91b46cd89650d9b53b6fb868fb6fec8ef8cd7888c4f00dab1f4c8f1',
-  block_number: 17684493,
-  block_unixtime: '1689250271',
-  transaction_type: 'swap',
-  called_contract_by_user: '0x24902AA0cf0000a08c0EA0b003B0c0bF600000E0',
-  trader: '0x24902AA0cf0000a08c0EA0b003B0c0bF600000E0',
-  tx_position: 25,
-  coins_leaving_wallet: [
-    {
-      coin_id: 382,
-      amount: '42302.896060570900000',
-      name: 'crvUSD',
-      address: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E'
-    }
-  ],
-  coins_entering_wallet: [
-    {
-      coin_id: 358,
-      amount: '42294.438190000000000',
-      name: 'USDT',
-      address: '0xdAC17F958D2ee523a2206206994597C13D831ec7'
-    }
-  ],
-  poolAddress: '0x390f3595bCa2Df7d23783dFd126427CCeb997BF4',
-  poolName: 'crvUSD/USDT'
-}
-
-Example: Remove
-{
-  tx_id: 116336,
-  pool_id: 197,
-  event_id: 356533,
-  tx_hash: '0xa2b78b43cca3b51b9ab3e0f966b794c91833c57e56e8fdcbc6cdb52305f8003a',
-  block_number: 17684486,
-  block_unixtime: '1689250187',
-  transaction_type: 'remove',
-  called_contract_by_user: '0xC1E088fC1323b20BCBee9bd1B9fC9546db5624C5',
-  trader: '0xC1E088fC1323b20BCBee9bd1B9fC9546db5624C5',
-  tx_position: 45,
-  coins_leaving_wallet: [
-    {
-      coin_id: 106,
-      amount: '3343.670875000000000',
-      name: 'BEAN',
-      address: '0xBEA0000029AD1c77D3d5D23Ba2D8893dB9d1Efab'
-    }
-  ],
-  coins_entering_wallet: [],
-  poolAddress: '0xc9C32cd16Bf7eFB85Ff14e0c8603cc90F6F2eE49',
-  poolName: 'Bean'
-}
-
-Example: Deposit
-{
-  tx_id: 116331,
-  pool_id: 664,
-  event_id: 356526,
-  tx_hash: '0xeb2d84d3fea03c38afd319c053271fece89f9e8db0c8374742fd316518573522',
-  block_number: 17684472,
-  block_unixtime: '1689250019',
-  transaction_type: 'deposit',
-  called_contract_by_user: '0x369cBC5C6f139B1132D3B91B87241B37Fc5B971f',
-  trader: '0x369cBC5C6f139B1132D3B91B87241B37Fc5B971f',
-  tx_position: 129,
-  coins_leaving_wallet: [],
-  coins_entering_wallet: [
-    {
-      coin_id: 382,
-      amount: '67848.496556505910000',
-      name: 'crvUSD',
-      address: '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E'
-    }
-  ],
-  poolAddress: '0x0CD6f267b2086bea681E922E19D40512511BE538',
-  poolName: 'crvUSD/Frax'
-}
-*/
 //# sourceMappingURL=TelegramBot.js.map
