@@ -285,10 +285,14 @@ function determineSenderTagForFeeDistributor(sender) {
 }
 export async function buildFeeDistributorMessage(txHash, sender, value) {
     const senderUrl = getBuyerURL(sender);
+    console.log('senderUrl:', senderUrl);
     const senderTag = determineSenderTagForFeeDistributor(sender);
+    console.log('senderTag:', senderTag);
     const txHashUrl = getTxHashURLfromEtherscan(txHash);
+    console.log('txHashUrl:', txHashUrl);
     const feeDistributorAddress = '0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc';
     const feeDistributorUrl = getBuyerURL(feeDistributorAddress);
+    console.log('feeDistributorUrl:', feeDistributorUrl);
     return `
 💰${hyperlink(feeDistributorUrl, 'Fee Distributor')} received ${formatForPrint(value)} 3CRV from${hyperlink(senderUrl, senderTag)}
 Links:${hyperlink(txHashUrl, 'txHash')} 🦙🦙🦙

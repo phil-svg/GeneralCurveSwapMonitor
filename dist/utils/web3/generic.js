@@ -13,4 +13,26 @@ export function getWeb3WsProvider() {
     web3WsProvider = new Web3(wsProvider);
     return web3WsProvider;
 }
+export async function getPastEvents(CONTRACT, eventName, fromBlock, toBlock) {
+    if (fromBlock === null || toBlock === null) {
+        return null;
+    }
+    let retries = 0;
+    const maxRetries = 12;
+    let EVENT_ARRAY = [];
+    while (retries < maxRetries) {
+        try {
+            const events = await CONTRACT.getPastEvents(eventName, { fromBlock, toBlock });
+            for (const DATA of events) {
+                EVENT_ARRAY.push(DATA);
+            }
+            break;
+        }
+        catch (error) {
+            console.log('Error in getPastEvents:', error);
+        }
+        retries++;
+    }
+    return EVENT_ARRAY;
+}
 //# sourceMappingURL=generic.js.map

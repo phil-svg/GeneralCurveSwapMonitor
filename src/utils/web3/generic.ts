@@ -18,3 +18,33 @@ export function getWeb3WsProvider(): Web3 {
 
   return web3WsProvider;
 }
+
+export async function getPastEvents(
+  CONTRACT: any,
+  eventName: string,
+  fromBlock: number | null,
+  toBlock: number | null
+): Promise<Array<object> | { start: number; end: number } | null> {
+  if (fromBlock === null || toBlock === null) {
+    return null;
+  }
+
+  let retries = 0;
+  const maxRetries = 12;
+  let EVENT_ARRAY: Array<object> = [];
+
+  while (retries < maxRetries) {
+    try {
+      const events = await CONTRACT.getPastEvents(eventName, { fromBlock, toBlock });
+      for (const DATA of events) {
+        EVENT_ARRAY.push(DATA);
+      }
+      break;
+    } catch (error) {
+      console.log('Error in getPastEvents:', error);
+    }
+    retries++;
+  }
+
+  return EVENT_ARRAY;
+}
