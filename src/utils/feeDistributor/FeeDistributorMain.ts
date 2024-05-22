@@ -19,10 +19,10 @@ async function processRawEvent(eventEmitter: any, event: any) {
     const sender = event.returnValues.sender;
     const factor = BigInt(10 ** decimals);
     const value = Number(event.returnValues.value / factor);
-    if (value < 25) {
-      console.log('Value is too small to be a hit:', value);
-      return;
-    }
+    // if (value < 25) {
+    //   console.log('Value is too small to be a hit:', value);
+    //   return;
+    // }
     await processHit(eventEmitter, txHash, sender, value);
   }
 }
