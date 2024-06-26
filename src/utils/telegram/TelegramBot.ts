@@ -315,6 +315,7 @@ function determineSenderTagForFeeDistributor(sender: string) {
     'Stable Deposit Burner': '0x1D56495c76d99435d10ecd5b0C3bd6a8EE7cC3bb',
     'Swap Router': '0x99a58482BD75cbab83b27EC03CA68fF489b5788f',
     'Pool Owner': '0xeCb456EA5365865EbAb8a2661B0c503410e9B347',
+    'CoW Settlement 🐮': '0x9008d19f58aabd9ed0d60971565aa8510560ab41',
   };
   const senderLower = sender.toLowerCase();
   for (const [key, value] of Object.entries(potentialFroms)) {
@@ -332,12 +333,12 @@ export async function buildFeeDistributorMessage(txHash: string, sender: string,
   console.log('senderTag:', senderTag);
   const txHashUrl = getTxHashURLfromEtherscan(txHash);
   console.log('txHashUrl:', txHashUrl);
-  const feeDistributorAddress = '0xA464e6DCda8AC41e03616F95f4BC98a13b8922Dc';
-  const feeDistributorUrl = getBuyerURL(feeDistributorAddress);
-  console.log('feeDistributorUrl:', feeDistributorUrl);
+  const feeCollectorAddress = '0xa2Bcd1a4Efbd04B63cd03f5aFf2561106ebCCE00';
+  const feeCollectorUrl = getBuyerURL(feeCollectorAddress);
+  console.log('feeCollectorUrl:', feeCollectorUrl);
 
   return `
-💰${hyperlink(feeDistributorUrl, 'Fee Distributor')} received ${formatForPrint(value)} 3CRV from${hyperlink(
+💰${hyperlink(feeCollectorUrl, 'Fee Collector')} received ${formatForPrint(value)} crvUSD from${hyperlink(
     senderUrl,
     senderTag
   )}

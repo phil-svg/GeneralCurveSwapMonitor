@@ -30,3 +30,34 @@ export async function getContract3Crv() {
   const contract = new WEB3_WS_PROVIDER.eth.Contract(abi, address);
   return contract;
 }
+
+export async function getContractcrvUSD() {
+  let WEB3_WS_PROVIDER = getWeb3WsProvider();
+  const abi: any[] = [
+    {
+      name: 'Transfer',
+      inputs: [
+        {
+          name: 'sender',
+          type: 'address',
+          indexed: true,
+        },
+        {
+          name: 'receiver',
+          type: 'address',
+          indexed: true,
+        },
+        {
+          name: 'value',
+          type: 'uint256',
+          indexed: false,
+        },
+      ],
+      anonymous: false,
+      type: 'event',
+    },
+  ];
+  const address = '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E';
+  const contract = new WEB3_WS_PROVIDER.eth.Contract(abi, address);
+  return contract;
+}
