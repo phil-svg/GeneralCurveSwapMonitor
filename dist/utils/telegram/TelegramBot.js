@@ -285,6 +285,8 @@ function determineSenderTagForFeeDistributor(sender) {
     return shortenAddress(sender);
 }
 export async function buildFeeDistributorMessage(txHash, sender, value) {
+    if (value < 500)
+        return null;
     const senderUrl = getBuyerURL(sender);
     console.log('senderUrl:', senderUrl);
     const senderTag = determineSenderTagForFeeDistributor(sender);

@@ -4,7 +4,7 @@ import { getContractcrvUSD } from './Helper.js';
 
 async function processHit(eventEmitter: any, txHash: string, sender: string, value: number) {
   const message = await buildFeeDistributorMessage(txHash, sender, value);
-  eventEmitter.emit('newMessage', message);
+  if (message) eventEmitter.emit('newMessage', message);
 }
 
 async function processRawEvent(eventEmitter: any, event: any) {
@@ -34,11 +34,10 @@ export async function startFeeDistributor(eventEmitter: any) {
     await processRawEvent(eventEmitter, event);
   });
 
-  /*
   //  HISTORICAL
-  const startBlock = 20164999;
-  // const endBlock = startBlock;
-  const endBlock = 20164999;
+  const startBlock = 20323208;
+  const endBlock = startBlock;
+  // const endBlock = 20164999;
   const pastEvents = await getPastEvents(contractCrvUSD, 'Transfer', startBlock, endBlock);
   if (Array.isArray(pastEvents)) {
     console.log('found', pastEvents.length, 'events');
@@ -46,5 +45,4 @@ export async function startFeeDistributor(eventEmitter: any) {
       await processRawEvent(eventEmitter, event);
     }
   }
-  */
 }
