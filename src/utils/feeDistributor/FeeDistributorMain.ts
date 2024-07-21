@@ -34,6 +34,7 @@ export async function startFeeDistributor(eventEmitter: any) {
     await processRawEvent(eventEmitter, event);
   });
 
+  /*
   //  HISTORICAL
   const startBlock = 20323208;
   const endBlock = startBlock;
@@ -45,4 +46,5 @@ export async function startFeeDistributor(eventEmitter: any) {
       await processRawEvent(eventEmitter, event);
     }
   }
+  */
 }

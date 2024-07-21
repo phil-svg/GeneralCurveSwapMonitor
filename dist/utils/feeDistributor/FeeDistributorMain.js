@@ -1,5 +1,4 @@
 import { buildFeeDistributorMessage } from '../telegram/TelegramBot.js';
-import { getPastEvents } from '../web3/generic.js';
 import { getContractcrvUSD } from './Helper.js';
 async function processHit(eventEmitter, txHash, sender, value) {
     const message = await buildFeeDistributorMessage(txHash, sender, value);
@@ -29,16 +28,18 @@ export async function startFeeDistributor(eventEmitter) {
     const subscription = contractCrvUSD.events.Transfer({ fromBlock: 'latest' }).on('data', async (event) => {
         await processRawEvent(eventEmitter, event);
     });
+    /*
     //  HISTORICAL
     const startBlock = 20323208;
     const endBlock = startBlock;
     // const endBlock = 20164999;
     const pastEvents = await getPastEvents(contractCrvUSD, 'Transfer', startBlock, endBlock);
     if (Array.isArray(pastEvents)) {
-        console.log('found', pastEvents.length, 'events');
-        for (const event of pastEvents) {
-            await processRawEvent(eventEmitter, event);
-        }
+      console.log('found', pastEvents.length, 'events');
+      for (const event of pastEvents) {
+        await processRawEvent(eventEmitter, event);
+      }
     }
+    */
 }
 //# sourceMappingURL=FeeDistributorMain.js.map
