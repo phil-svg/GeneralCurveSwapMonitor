@@ -351,6 +351,14 @@ Links:${hyperlink(txHashUrl, 'txHash')} 🦙🦙🦙
   `;
 }
 
+export async function buildCrvUSDFlashloanMessage(txHash: string): Promise<string | null> {
+  const txHashUrl = getTxHashURLfromEtherscan(txHash);
+  return `
+crvUSD-Flashloan spotted
+Links:${hyperlink(txHashUrl, 'txHash')} 🦙🦙🦙
+  `;
+}
+
 function getTimeMessage(timestamp: Date): string {
   if (!timestamp) return 'never seen'; // If no transaction was seen
 

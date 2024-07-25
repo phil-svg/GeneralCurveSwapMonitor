@@ -1,5 +1,5 @@
 import { buildFeeDistributorMessage } from '../telegram/TelegramBot.js';
-import { getContractcrvUSD } from './Helper.js';
+import { getContractcrvUSD } from '../Helper.js';
 async function processHit(eventEmitter, txHash, sender, value) {
     const message = await buildFeeDistributorMessage(txHash, sender, value);
     if (message)

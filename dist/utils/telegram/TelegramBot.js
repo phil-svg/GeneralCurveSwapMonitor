@@ -301,6 +301,13 @@ export async function buildFeeDistributorMessage(txHash, sender, value) {
 Links:${hyperlink(txHashUrl, 'txHash')} 🦙🦙🦙
   `;
 }
+export async function buildCrvUSDFlashloanMessage(txHash) {
+    const txHashUrl = getTxHashURLfromEtherscan(txHash);
+    return `
+crvUSD-Flashloan spotted
+Links:${hyperlink(txHashUrl, 'txHash')} 🦙🦙🦙
+  `;
+}
 function getTimeMessage(timestamp) {
     if (!timestamp)
         return 'never seen'; // If no transaction was seen

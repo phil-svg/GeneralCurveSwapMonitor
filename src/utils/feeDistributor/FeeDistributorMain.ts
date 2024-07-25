@@ -1,6 +1,6 @@
 import { buildFeeDistributorMessage } from '../telegram/TelegramBot.js';
 import { getPastEvents } from '../web3/generic.js';
-import { getContractcrvUSD } from './Helper.js';
+import { getContractcrvUSD } from '../Helper.js';
 
 async function processHit(eventEmitter: any, txHash: string, sender: string, value: number) {
   const message = await buildFeeDistributorMessage(txHash, sender, value);
