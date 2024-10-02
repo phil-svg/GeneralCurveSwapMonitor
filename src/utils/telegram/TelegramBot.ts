@@ -326,6 +326,14 @@ function determineSenderTagForFeeDistributor(sender: string) {
   return shortenAddress(sender);
 }
 
+export async function buildFeeSplitterMessage(txHash: string): Promise<string | null> {
+  const txHashUrl = getTxHashURLfromEtherscan(txHash);
+  return `
+Liveness Protection Triggered in Fee-Splitter (I might double-print)
+Links:${hyperlink(txHashUrl, 'txHash')} 🦙🦙🦙
+  `;
+}
+
 export async function buildFeeDistributorMessage(
   txHash: string,
   sender: string,

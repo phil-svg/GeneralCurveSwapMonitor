@@ -3,6 +3,7 @@ import { telegramBotMain } from './utils/telegram/TelegramBot.js';
 import { connectToWebsocket } from './utils/websocket/GeneralTxWebsocket.js';
 import { startFeeDistributor } from './utils/feeDistributor/FeeDistributorMain.js';
 import { startCrvUSDFlashloan } from './utils/crvUSD_Flashloan/Flashloan.js';
+import { startFeeSplitter } from './utils/feeSplitter/FeeSplitterMain.js';
 
 console.clear();
 
@@ -22,6 +23,7 @@ async function main() {
   await connectToWebsocket(eventEmitter);
   await startFeeDistributor(eventEmitter);
   await startCrvUSDFlashloan(eventEmitter);
+  await startFeeSplitter(eventEmitter);
 }
 
 await main();
