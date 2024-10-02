@@ -8,7 +8,7 @@ async function processHit(eventEmitter: any, txHash: string) {
 }
 
 async function processRawEvent(eventEmitter: any, event: any) {
-  console.log('Event spotted for feeCollector:', event);
+  console.log('Event spotted for feeSplitter:', event);
   const txHash = event.transactionHash;
   const sender = event.returnValues.sender;
   await processHit(eventEmitter, txHash);
@@ -22,7 +22,7 @@ export async function startFeeSplitter(eventEmitter: any) {
   const currentBlock = Number(await WEB3_WS_PROVIDER.eth.getBlockNumber());
   const blocksPerMinute = 5;
   const startBlock = currentBlock - blocksPerMinute * 90; // past 1.5h
-  const pastEvents = await getPastEvents(contractFeeSplitter, 'Transfer', startBlock, currentBlock);
+  const pastEvents = await getPastEvents(contractFeeSplitter, 'LivenessProtectionTriggered', startBlock, currentBlock);
   if (Array.isArray(pastEvents)) {
     console.log('found', pastEvents.length, 'events');
     for (const event of pastEvents) {

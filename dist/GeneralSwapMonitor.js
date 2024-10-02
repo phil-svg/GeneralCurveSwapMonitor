@@ -5,8 +5,8 @@ import { startFeeDistributor } from './utils/feeDistributor/FeeDistributorMain.j
 import { startCrvUSDFlashloan } from './utils/crvUSD_Flashloan/Flashloan.js';
 import { startFeeSplitter } from './utils/feeSplitter/FeeSplitterMain.js';
 console.clear();
-const ENV = 'prod';
-// const ENV = 'test';
+// const ENV = 'prod';
+const ENV = 'test';
 // export const url = 'http://localhost:443';
 export const url = 'wss://api.curvemonitor.com';
 export const FILTER_VALUE_DEXDEX = 1000000;
