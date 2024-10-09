@@ -352,7 +352,7 @@ export async function getContractFeeSplitter() {
       type: 'constructor',
     },
   ];
-  const address = '0x22556558419EeD2d0A1Af2e7Fd60E63f3199aca3';
+  const address = '0x2dFd89449faff8a532790667baB21cF733C064f2';
   const contract = new WEB3_WS_PROVIDER.eth.Contract(abi, address);
   return contract;
 }
