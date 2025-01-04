@@ -384,11 +384,23 @@ Links:${hyperlink(txHashUrl, 'txHash')} 🦙🦙🦙
   `;
 }
 
-export async function buildCrvUSDFlashloanMessage(txHash: string): Promise<string | null> {
-  const txHashUrl = getTxHashURLfromEtherscan(txHash);
+function getcrvusdTag() {
+  const address = '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E';
+  const name = 'crvUSD';
+  return `${hyperlink(getTokenURL(address), name)}`;
+}
+
+export async function buildCrvUSDFlashloanMessage(event: any): Promise<string | null> {
+  const txHashUrl = getTxHashURLfromEtherscan(event.transactionHash);
+  const userUrl = getBuyerURL(event.returnValues.caller);
+  const shortenUser = getAddressName(event.returnValues.caller);
+  const flashloanAmount = formatForPrint(Number(event.returnValues.amount) / 1e18);
+  const crvUSDTag = getcrvusdTag();
+  const flashLenderUrl = getPoolURL('0xA7a4bb50AF91f90b6fEb3388E7f8286aF45b299B');
+
   return `
-crvUSD-Flashloan spotted
-Links:${hyperlink(txHashUrl, 'txHash')} 🦙🦙🦙
+  User${hyperlink(userUrl, shortenUser)} flashloaned ${flashloanAmount}${crvUSDTag}
+Links:${hyperlink(flashLenderUrl, 'FlashLender')} |${hyperlink(txHashUrl, 'etherscan.io')} 🦙🦙🦙
   `;
 }
 
