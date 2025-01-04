@@ -1,6 +1,5 @@
 import { getContractcrvUSDFlashLender } from '../Helper.js';
 import { buildCrvUSDFlashloanMessage } from '../telegram/TelegramBot.js';
-import { getPastEvents } from '../web3/generic.js';
 async function processHit(eventEmitter, event) {
     const message = await buildCrvUSDFlashloanMessage(event);
     if (message)
@@ -19,16 +18,18 @@ export async function startCrvUSDFlashloan(eventEmitter) {
         .on('data', async (event) => {
         await processRawEvent(eventEmitter, event);
     });
+    /*
     //  HISTORICAL
     const startBlock = 21535801;
     const endBlock = startBlock;
     // const endBlock = 20164999;
     const pastEvents = await getPastEvents(contractcrvUSDFlashLender, 'FlashLoan', startBlock, endBlock);
     if (Array.isArray(pastEvents)) {
-        console.log('found', pastEvents.length, 'events');
-        for (const event of pastEvents) {
-            await processRawEvent(eventEmitter, event);
-        }
+      console.log('found', pastEvents.length, 'events');
+      for (const event of pastEvents) {
+        await processRawEvent(eventEmitter, event);
+      }
     }
+    */
 }
 //# sourceMappingURL=Flashloan.js.map

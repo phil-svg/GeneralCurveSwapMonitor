@@ -23,6 +23,7 @@ export async function startCrvUSDFlashloan(eventEmitter: any) {
       await processRawEvent(eventEmitter, event);
     });
 
+  /*
   //  HISTORICAL
   const startBlock = 21535801;
   const endBlock = startBlock;
@@ -34,4 +35,5 @@ export async function startCrvUSDFlashloan(eventEmitter: any) {
       await processRawEvent(eventEmitter, event);
     }
   }
+  */
 }
