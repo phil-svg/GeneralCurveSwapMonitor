@@ -97,8 +97,11 @@ export async function connectToWebsocket(eventEmitter: any) {
 
         if (value) {
           if (enrichedTransaction.poolAddress.toLowerCase() === address_crv2pool.toLowerCase()) {
-            const message = await buildGeneralTransactionMessage(enrichedTransaction, value);
-            eventEmitter.emit('newMessage', message);
+            if (value < 250000) {
+              const message = await buildGeneralTransactionMessage(enrichedTransaction, value);
+              eventEmitter.emit('newMessage', message);
+            }
+
             return;
           } else if (
             value < FILTER_VALUE_DEXDEX &&

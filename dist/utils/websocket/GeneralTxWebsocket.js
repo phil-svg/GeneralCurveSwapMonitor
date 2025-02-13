@@ -76,8 +76,10 @@ export async function connectToWebsocket(eventEmitter) {
                 const address_crv2pool = '0x4f493b7de8aac7d55f71853688b1f7c8f0243c85';
                 if (value) {
                     if (enrichedTransaction.poolAddress.toLowerCase() === address_crv2pool.toLowerCase()) {
-                        const message = await buildGeneralTransactionMessage(enrichedTransaction, value);
-                        eventEmitter.emit('newMessage', message);
+                        if (value < 250000) {
+                            const message = await buildGeneralTransactionMessage(enrichedTransaction, value);
+                            eventEmitter.emit('newMessage', message);
+                        }
                         return;
                     }
                     else if (value < FILTER_VALUE_DEXDEX &&
