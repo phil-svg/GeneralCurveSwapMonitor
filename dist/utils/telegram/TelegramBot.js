@@ -4,6 +4,7 @@ import { labels } from '../../Labels.js';
 import { solverLabels } from '../whitelisting/Whitelist.js';
 import { readFileAsync } from '../websocket/GeneralTxWebsocket.js';
 dotenv.config({ path: '../.env' });
+const address_3Pool = '0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7';
 async function getLastSeenValues() {
     try {
         const data = JSON.parse(await readFileAsync('lastSeen.json', 'utf-8'));
@@ -262,12 +263,25 @@ export async function buildGeneralTransactionMessage(enrichedTransaction, value)
     if (enrichedTransaction.transaction_type === 'remove') {
         firstLine = `${txType} ${transactedCoinInfo}${DOLLAR_ADDON}`;
     }
-    return `
+    if (enrichedTransaction.poolAddress.toLowerCase() === address_3Pool.toLowerCase()) {
+        let profitToDao = value * 0.0001;
+        profitToDao = Number(profitToDao.toFixed(0));
+        return `
+${firstLine}
+${priceAndBlocknumberTag}
+${actorType}:${hyperlink(actorURL, shortenActor)} called Contract:${hyperlink(LABEL_URL_ETHERSCAN, labelName)}
+Profit to DAO:${profitToDao}$
+Links:${POOL} |${hyperlink(txHashUrl, 'etherscan.io')} ${emoji}
+  `;
+    }
+    else {
+        return `
 ${firstLine}
 ${priceAndBlocknumberTag}
 ${actorType}:${hyperlink(actorURL, shortenActor)} called Contract:${hyperlink(LABEL_URL_ETHERSCAN, labelName)}
 Links:${POOL} |${hyperlink(txHashUrl, 'etherscan.io')} ${emoji}
   `;
+    }
 }
 function determineSenderTagForFeeDistributor(sender) {
     const potentialFroms = {

@@ -101,7 +101,6 @@ export async function connectToWebsocket(eventEmitter: any) {
               const message = await buildGeneralTransactionMessage(enrichedTransaction, value);
               eventEmitter.emit('newMessage', message);
             }
-
             return;
           } else if (
             value < FILTER_VALUE_DEXDEX &&
