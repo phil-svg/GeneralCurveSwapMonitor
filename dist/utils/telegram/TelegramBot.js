@@ -270,7 +270,7 @@ export async function buildGeneralTransactionMessage(enrichedTransaction, value)
 ${firstLine}
 ${priceAndBlocknumberTag}
 ${actorType}:${hyperlink(actorURL, shortenActor)} called Contract:${hyperlink(LABEL_URL_ETHERSCAN, labelName)}
-Profit to DAO:${profitToDao}$
+Profit to DAO: ${profitToDao}$
 Links:${POOL} |${hyperlink(txHashUrl, 'etherscan.io')} ${emoji}
   `;
     }
