@@ -306,7 +306,7 @@ export async function buildGeneralTransactionMessage(enrichedTransaction: Enrich
   }
 
   if (enrichedTransaction.poolAddress.toLowerCase() === address_3Pool.toLowerCase()) {
-    let profitToDao = value * 0.0001;
+    let profitToDao = value * 0.0002;
     profitToDao = Number(profitToDao.toFixed(0));
 
     return `
