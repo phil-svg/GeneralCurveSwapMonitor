@@ -400,6 +400,17 @@ Links:${hyperlink(txHashUrl, 'txHash')} 🦙🦙🦙
   `;
 }
 
+export function buildFeeDistributorSummaryMessage(totalCrvUSD: number): string {
+  const feeCollectorAddress = '0xa2Bcd1a4Efbd04B63cd03f5aFf2561106ebCCE00';
+  const explorerLink = `https://etherscan.io/address/${feeCollectorAddress}`;
+
+  return `
+Weekly Summary:${hyperlink(explorerLink, 'Fee Collector')} received a total of ${formatForPrint(
+    totalCrvUSD
+  )} crvUSD from Pool-Fees. 🦙🦙🦙
+`;
+}
+
 function getcrvusdTag() {
   const address = '0xf939E0A03FB07F59A73314E73794Be0E57ac1b4E';
   const name = 'crvUSD';
