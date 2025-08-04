@@ -35,4 +35,14 @@ export async function getPastEvents(CONTRACT, eventName, fromBlock, toBlock) {
     }
     return EVENT_ARRAY;
 }
+export async function getCurrentBlocknumber() {
+    try {
+        let web3HttpProvider = new Web3(new Web3.providers.HttpProvider(process.env.WEB3_HTTP_MAINNET));
+        const blockNumber = await web3HttpProvider.eth.getBlockNumber();
+        return blockNumber;
+    }
+    catch (err) {
+        return null;
+    }
+}
 //# sourceMappingURL=generic.js.map

@@ -1,5 +1,5 @@
 import { buildFeeDistributorMessage, buildFeeDistributorMessageRewardsHandler, buildFeeDistributorSummaryMessage, } from '../telegram/TelegramBot.js';
-import { getPastEvents } from '../web3/generic.js';
+import { getCurrentBlocknumber, getPastEvents } from '../web3/generic.js';
 import { getContractcrvUSD } from '../Helper.js';
 import { flushSummaryStore, loadSummaryStore, markSummaryProcessed, saveSummaryEvent, shouldPostSummary, } from './SummaryStore.js';
 const feeCollectorAddress = '0xa2Bcd1a4Efbd04B63cd03f5aFf2561106ebCCE00';
@@ -42,16 +42,16 @@ async function processRawEvent(eventEmitter, event) {
         await processHitRewardsHandler(eventEmitter, txHash, sender, value);
     }
 }
-export async function startFeeDistributor(eventEmitter) {
+export async function startFeeDistributorOld(eventEmitter) {
     const contractCrvUSD = await getContractcrvUSD();
     // LIVE
     contractCrvUSD.events.Transfer({ fromBlock: 'latest' }).on('data', async (event) => {
         await processRawEvent(eventEmitter, event);
     });
     //  HISTORICAL
-    const startBlock = 22920865;
+    const startBlock = 23067356 - 5 * 60 * 24 * 7;
     // const endBlock = startBlock;
-    const endBlock = 22920976;
+    const endBlock = 23067356;
     const pastEvents = await getPastEvents(contractCrvUSD, 'Transfer', startBlock, endBlock);
     if (Array.isArray(pastEvents)) {
         console.log('found', pastEvents.length, 'events');
@@ -61,9 +61,47 @@ export async function startFeeDistributor(eventEmitter) {
     }
     // SUMMARY
     setInterval(async () => {
+        console.log('doing');
+        const { shouldPost, timestamp } = await shouldPostSummary();
+        console.log('shouldPost', shouldPost);
+        console.log('timestamp', timestamp);
+        if (!shouldPost)
+            return;
+        const store = await loadSummaryStore();
+        const relevant = store.events;
+        console.log('store', store);
+        if (relevant.length === 0)
+            return;
+        const total = relevant.reduce((acc, ev) => acc + ev.value, 0);
+        const message = buildFeeDistributorSummaryMessage(total);
+        eventEmitter.emit('newMessage', message);
+        await flushSummaryStore();
+        await markSummaryProcessed(timestamp.getTime());
+    }, 60000); // every minute
+}
+export async function startFeeDistributor(eventEmitter) {
+    const contractCrvUSD = await getContractcrvUSD();
+    // LIVE
+    contractCrvUSD.events.Transfer({ fromBlock: 'latest' }).on('data', async (event) => {
+        await processRawEvent(eventEmitter, event);
+    });
+    // SUMMARY
+    setInterval(async () => {
         const { shouldPost, timestamp } = await shouldPostSummary();
         if (!shouldPost)
             return;
+        //  HISTORICAL
+        const nowBlock = await getCurrentBlocknumber();
+        if (!nowBlock)
+            return;
+        const startBlock = Number(nowBlock) - 5 * 60 * 24 * 6.5; // last 6.5 days
+        const endBlock = Number(nowBlock);
+        const pastEvents = await getPastEvents(contractCrvUSD, 'Transfer', startBlock, endBlock);
+        if (Array.isArray(pastEvents)) {
+            for (const event of pastEvents) {
+                await processRawEvent(eventEmitter, event);
+            }
+        }
         const store = await loadSummaryStore();
         const relevant = store.events;
         if (relevant.length === 0)

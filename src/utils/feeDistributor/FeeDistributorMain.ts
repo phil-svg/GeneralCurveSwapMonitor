@@ -3,7 +3,7 @@ import {
   buildFeeDistributorMessageRewardsHandler,
   buildFeeDistributorSummaryMessage,
 } from '../telegram/TelegramBot.js';
-import { getPastEvents } from '../web3/generic.js';
+import { getCurrentBlocknumber, getPastEvents } from '../web3/generic.js';
 import { getContractcrvUSD } from '../Helper.js';
 import {
   flushSummaryStore,
@@ -12,6 +12,7 @@ import {
   saveSummaryEvent,
   shouldPostSummary,
 } from './SummaryStore.js';
+import { getBlockNumber } from 'web3/lib/commonjs/eth.exports.js';
 
 const feeCollectorAddress = '0xa2Bcd1a4Efbd04B63cd03f5aFf2561106ebCCE00';
 const rewardsHandlerAddress = '0xE8d1E2531761406Af1615A6764B0d5fF52736F56';
@@ -56,7 +57,7 @@ async function processRawEvent(eventEmitter: any, event: any) {
   }
 }
 
-export async function startFeeDistributor(eventEmitter: any) {
+export async function startFeeDistributorOld(eventEmitter: any) {
   const contractCrvUSD = await getContractcrvUSD();
 
   // LIVE
@@ -65,9 +66,9 @@ export async function startFeeDistributor(eventEmitter: any) {
   });
 
   //  HISTORICAL
-  const startBlock = 22920865;
+  const startBlock = 23067356 - 5 * 60 * 24 * 7;
   // const endBlock = startBlock;
-  const endBlock = 22920976;
+  const endBlock = 23067356;
   const pastEvents = await getPastEvents(contractCrvUSD, 'Transfer', startBlock, endBlock);
   if (Array.isArray(pastEvents)) {
     console.log('found', pastEvents.length, 'events');
@@ -78,8 +79,53 @@ export async function startFeeDistributor(eventEmitter: any) {
 
   // SUMMARY
   setInterval(async () => {
+    console.log('doing');
+    const { shouldPost, timestamp } = await shouldPostSummary();
+    console.log('shouldPost', shouldPost);
+    console.log('timestamp', timestamp);
+    if (!shouldPost) return;
+
+    const store = await loadSummaryStore();
+    const relevant = store.events;
+
+    console.log('store', store);
+
+    if (relevant.length === 0) return;
+
+    const total = relevant.reduce((acc, ev) => acc + ev.value, 0);
+    const message = buildFeeDistributorSummaryMessage(total);
+
+    eventEmitter.emit('newMessage', message);
+
+    await flushSummaryStore();
+    await markSummaryProcessed(timestamp.getTime());
+  }, 60_000); // every minute
+}
+
+export async function startFeeDistributor(eventEmitter: any) {
+  const contractCrvUSD = await getContractcrvUSD();
+
+  // LIVE
+  contractCrvUSD.events.Transfer({ fromBlock: 'latest' }).on('data', async (event: any) => {
+    await processRawEvent(eventEmitter, event);
+  });
+
+  // SUMMARY
+  setInterval(async () => {
     const { shouldPost, timestamp } = await shouldPostSummary();
     if (!shouldPost) return;
+
+    //  HISTORICAL
+    const nowBlock = await getCurrentBlocknumber();
+    if (!nowBlock) return;
+    const startBlock = Number(nowBlock) - 5 * 60 * 24 * 6.5; // last 6.5 days
+    const endBlock = Number(nowBlock);
+    const pastEvents = await getPastEvents(contractCrvUSD, 'Transfer', startBlock, endBlock);
+    if (Array.isArray(pastEvents)) {
+      for (const event of pastEvents) {
+        await processRawEvent(eventEmitter, event);
+      }
+    }
 
     const store = await loadSummaryStore();
     const relevant = store.events;
