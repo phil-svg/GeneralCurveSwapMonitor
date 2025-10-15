@@ -357,7 +357,7 @@ export async function buildCrvUSDFlashloanMessage(event) {
     const shortenUser = getAddressName(event.returnValues.caller);
     const flashloanAmount = formatForPrint(Number(event.returnValues.amount) / 1e18);
     const crvUSDTag = getcrvusdTag();
-    const flashLenderUrl = getPoolURL('0xA7a4bb50AF91f90b6fEb3388E7f8286aF45b299B');
+    const flashLenderUrl = getPoolURL('0x26dE7861e213A5351F6ED767d00e0839930e9eE1');
     return `
   User${hyperlink(userUrl, shortenUser)} flashloaned ${flashloanAmount}${crvUSDTag}
 Links:${hyperlink(flashLenderUrl, 'FlashLender')} |${hyperlink(txHashUrl, 'etherscan.io')} 🦙🦙🦙
