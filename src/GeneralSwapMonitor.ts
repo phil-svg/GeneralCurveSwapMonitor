@@ -22,7 +22,7 @@ async function main() {
   await telegramBotMain(ENV, eventEmitter);
   await connectToWebsocket(eventEmitter);
   await startFeeDistributor(eventEmitter);
-  await startCrvUSDFlashloan(eventEmitter);
+  // await startCrvUSDFlashloan(eventEmitter);
   await startFeeSplitter(eventEmitter);
 }
 

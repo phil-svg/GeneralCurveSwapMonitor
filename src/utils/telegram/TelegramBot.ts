@@ -407,7 +407,7 @@ export function buildFeeDistributorSummaryMessage(totalCrvUSD: number): string {
   return `
 Weekly Summary:${hyperlink(explorerLink, 'Fee Collector')} received a total of ${formatForPrint(
     totalCrvUSD
-  )} crvUSD from Pool-Fees. 🦙🦙🦙
+  )} crvUSD from Fees. 🦙🦙🦙
 `;
 }
 

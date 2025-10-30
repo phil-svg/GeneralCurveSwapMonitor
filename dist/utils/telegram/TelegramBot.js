@@ -343,7 +343,7 @@ export function buildFeeDistributorSummaryMessage(totalCrvUSD) {
     const feeCollectorAddress = '0xa2Bcd1a4Efbd04B63cd03f5aFf2561106ebCCE00';
     const explorerLink = `https://etherscan.io/address/${feeCollectorAddress}`;
     return `
-Weekly Summary:${hyperlink(explorerLink, 'Fee Collector')} received a total of ${formatForPrint(totalCrvUSD)} crvUSD from Pool-Fees. 🦙🦙🦙
+Weekly Summary:${hyperlink(explorerLink, 'Fee Collector')} received a total of ${formatForPrint(totalCrvUSD)} crvUSD from Fees. 🦙🦙🦙
 `;
 }
 function getcrvusdTag() {
