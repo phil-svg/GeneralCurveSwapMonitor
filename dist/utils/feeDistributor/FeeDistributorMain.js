@@ -49,33 +49,6 @@ async function processRawEvent(eventEmitter, event) {
 export async function startFeeDistributor(eventEmitter) {
     const contractCrvUSD = await getContractcrvUSD();
     // SUMMARY
-    // setInterval(async () => {
-    //   const { shouldPost, timestamp } = await shouldPostSummary();
-    //   // if (!shouldPost) return;
-    //   console.log('DEBUGGING STARTlololololololool');
-    //   //  HISTORICAL
-    //   const nowBlock = await getCurrentBlocknumber();
-    //   if (!nowBlock) return;
-    //   const startBlock = Number(nowBlock) - 5 * 60 * 24 * 7; // last 7 days
-    //   const endBlock = Number(nowBlock);
-    //   console.time();
-    //   const pastEvents = await getPastEventsChunked(contractCrvUSD, 'Transfer', startBlock, endBlock);
-    //   console.log('pastEvents', pastEvents.length);
-    //   console.timeEnd();
-    //   if (Array.isArray(pastEvents)) {
-    //     for (const event of pastEvents) {
-    //       await processRawEvent(eventEmitter, event);
-    //     }
-    //   }
-    //   const store = await loadSummaryStore();
-    //   const relevant = store.events;
-    //   if (relevant.length === 0) return;
-    //   const total = relevant.reduce((acc, ev) => acc + ev.value, 0);
-    //   const message = buildFeeDistributorSummaryMessage(total);
-    //   eventEmitter.emit('newMessage', message);
-    //   await flushSummaryStore();
-    //   await markSummaryProcessed(timestamp.getTime());
-    // }, 60_000); // every minute
     let tickRunning = false;
     setInterval(async () => {
         // NEW NEW NEW NEW

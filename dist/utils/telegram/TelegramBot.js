@@ -219,7 +219,7 @@ export async function buildGeneralTransactionMessage(enrichedTransaction, value)
         let priceA = amountLeavingWallet / amountEnteringWallet;
         let priceB = amountEnteringWallet / amountLeavingWallet;
         let [executionPrice, denominationTag] = findUnderstandableExecutionPriceAndDenomination(priceA, priceB, coinLeavingWalletName, coinEnteringWalletName);
-        priceAndBlocknumberTag = `Execution Price: ${executionPrice} (${denominationTag})\nBlock:${blockLinkPayload} | Index: ${enrichedTransaction.tx_position}`;
+        priceAndBlocknumberTag = `Block:${blockLinkPayload} | Index: ${enrichedTransaction.tx_position}`;
         transactedCoinInfo = `${formatForPrint(amountLeavingWallet)}${hyperlink(coinLeavingWalletUrl, coinLeavingWalletName)} ➛ ${formatForPrint(amountEnteringWallet)}${hyperlink(coinEnteringWalletUrl, coinEnteringWalletName)}`;
     }
     else if (enrichedTransaction.transaction_type === 'remove') {

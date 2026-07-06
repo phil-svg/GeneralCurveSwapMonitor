@@ -83,16 +83,8 @@ export async function connectToWebsocket(eventEmitter) {
                 // Calculate the value of the transaction and build a message about it
                 const value = await priceTransaction(enrichedTransaction);
                 const whitelistedAddresses = solverLabels.map((solver) => solver.Address.toLowerCase());
-                const address_crv2pool = '0x4f493b7de8aac7d55f71853688b1f7c8f0243c85';
                 if (value) {
-                    if (enrichedTransaction.poolAddress.toLowerCase() === address_crv2pool.toLowerCase()) {
-                        if (value > 250000) {
-                            const message = await buildGeneralTransactionMessage(enrichedTransaction, value);
-                            eventEmitter.emit('newMessage', message);
-                        }
-                        return;
-                    }
-                    else if (value < FILTER_VALUE_DEXDEX &&
+                    if (value < FILTER_VALUE_DEXDEX &&
                         !whitelistedAddresses.includes(enrichedTransaction.poolAddress.toLowerCase())) {
                         return;
                     }

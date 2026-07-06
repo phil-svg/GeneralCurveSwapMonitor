@@ -23,9 +23,12 @@ async function saveLastSeenToFile(hash: string, timestamp: Date) {
 }
 
 // Clear the cache every 5 minutes
-setInterval(() => {
-  processedTxIds.clear();
-}, 5 * 60 * 1000);
+setInterval(
+  () => {
+    processedTxIds.clear();
+  },
+  5 * 60 * 1000
+);
 
 export async function connectToWebsocket(eventEmitter: any) {
   const mainSocket = io(`${url}/main`);
@@ -106,16 +109,8 @@ export async function connectToWebsocket(eventEmitter: any) {
 
         const whitelistedAddresses = solverLabels.map((solver) => solver.Address.toLowerCase());
 
-        const address_crv2pool = '0x4f493b7de8aac7d55f71853688b1f7c8f0243c85';
-
         if (value) {
-          if (enrichedTransaction.poolAddress.toLowerCase() === address_crv2pool.toLowerCase()) {
-            if (value > 250000) {
-              const message = await buildGeneralTransactionMessage(enrichedTransaction, value);
-              eventEmitter.emit('newMessage', message);
-            }
-            return;
-          } else if (
+          if (
             value < FILTER_VALUE_DEXDEX &&
             !whitelistedAddresses.includes(enrichedTransaction.poolAddress.toLowerCase())
           ) {

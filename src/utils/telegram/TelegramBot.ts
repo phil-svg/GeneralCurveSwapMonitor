@@ -251,7 +251,7 @@ export async function buildGeneralTransactionMessage(enrichedTransaction: Enrich
       coinLeavingWalletName,
       coinEnteringWalletName
     );
-    priceAndBlocknumberTag = `Execution Price: ${executionPrice} (${denominationTag})\nBlock:${blockLinkPayload} | Index: ${enrichedTransaction.tx_position}`;
+    priceAndBlocknumberTag = `Block:${blockLinkPayload} | Index: ${enrichedTransaction.tx_position}`;
     transactedCoinInfo = `${formatForPrint(amountLeavingWallet)}${hyperlink(
       coinLeavingWalletUrl,
       coinLeavingWalletName
