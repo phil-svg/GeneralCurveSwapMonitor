@@ -27,3 +27,5 @@ async function main() {
 }
 
 await main();
+// await telegramBotMain(ENV, eventEmitter);
+// await startFeeDistributor(eventEmitter);

@@ -19,4 +19,6 @@ async function main() {
     await startFeeSplitter(eventEmitter);
 }
 await main();
+// await telegramBotMain(ENV, eventEmitter);
+// await startFeeDistributor(eventEmitter);
 //# sourceMappingURL=GeneralSwapMonitor.js.map

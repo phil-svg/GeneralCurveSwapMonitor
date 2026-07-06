@@ -52,8 +52,14 @@ function ensureSummaryFile(): SummaryFile {
   }
 }
 
+// function writeSummaryFile(data: SummaryFile) {
+//   fs.writeFileSync(SUMMARY_PATH, JSON.stringify(data, null, 2));
+// }
+
 function writeSummaryFile(data: SummaryFile) {
-  fs.writeFileSync(SUMMARY_PATH, JSON.stringify(data, null, 2));
+  const tmp = SUMMARY_PATH + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
+  fs.renameSync(tmp, SUMMARY_PATH); // atomic on same FS: no half-written file on crash
 }
 
 export async function saveSummaryEvent(event: SummaryEvent) {
@@ -74,6 +80,21 @@ export async function saveSummaryEvent(event: SummaryEvent) {
     data.events.push(event);
     writeSummaryFile(data);
   }
+}
+
+/**
+ * Commit a successful weekly post atomically: clear events, advance the block
+ * watermark, and record the processed timestamp — all in one write.
+ */
+export async function commitSummaryPosted(timestampMs: number) {
+  const data = ensureSummaryFile();
+  const maxBlock = data.events.reduce((m, e) => Math.max(m, e.blockNumber), data.highestProcessedBlock);
+  data.events = [];
+  data.highestProcessedBlock = maxBlock;
+  if (!data.processedTimestamps.includes(timestampMs)) {
+    data.processedTimestamps.push(timestampMs);
+  }
+  writeSummaryFile(data);
 }
 
 export async function loadSummaryStore(): Promise<SummaryFile> {

@@ -357,14 +357,10 @@ export async function buildFeeDistributorMessageRewardsHandler(
 ): Promise<string | null> {
   if (value < 500) return null;
   const senderUrl = getBuyerURL(sender);
-  console.log('senderUrl:', senderUrl);
   const senderTag = determineSenderTagForFeeDistributor(sender);
-  console.log('senderTag:', senderTag);
   const txHashUrl = getTxHashURLfromEtherscan(txHash);
-  console.log('txHashUrl:', txHashUrl);
   const addy = '0xE8d1E2531761406Af1615A6764B0d5fF52736F56';
   const addyUrl = getBuyerURL(addy);
-  console.log('addyUrl:', addyUrl);
 
   return `
 💰${hyperlink(addyUrl, 'scrvUSD Rewards Handler')} received ${formatForPrint(value)} crvUSD from${hyperlink(

@@ -24,6 +24,16 @@ export async function connectToWebsocket(eventEmitter) {
     const mainSocket = io(`${url}/main`);
     // A map to store transactions that are being delayed
     const pendingTransactions = new Map();
+    mainSocket.on('connect_error', (err) => {
+        console.error('Connection error:', err.message);
+        console.error('Full error details:', err);
+    });
+    mainSocket.on('disconnect', (reason) => {
+        console.log('Disconnected from WebSocket. Reason:', reason);
+    });
+    mainSocket.on('reconnect_error', (err) => {
+        console.error('Reconnection error:', err.message);
+    });
     mainSocket.on('connect', () => {
         console.log('connected');
         // Connect to both General Tx Livestream and Sandwich Livestream
@@ -52,7 +62,7 @@ export async function connectToWebsocket(eventEmitter) {
             let lastSeenTxHash = enrichedTransaction.tx_hash;
             let lastSeenTxTimestamp = new Date();
             await saveLastSeenToFile(lastSeenTxHash, lastSeenTxTimestamp);
-            console.log('enrichedTransaction', enrichedTransaction);
+            console.log('enrichedTransaction', enrichedTransaction.tx_hash);
             // Check if the transaction has already been processed
             if (processedTxIds.has(enrichedTransaction.tx_id))
                 return;
