@@ -13,16 +13,25 @@ export function getWeb3WsProvider() {
     web3WsProvider = new Web3(wsProvider);
     return web3WsProvider;
 }
+let web3HttpProvider = null;
+export function getWeb3HttpProvider() {
+    if (!web3HttpProvider) {
+        web3HttpProvider = new Web3(new Web3.providers.HttpProvider(process.env.WEB3_HTTP_MAINNET));
+    }
+    return web3HttpProvider;
+}
 export async function getPastEvents(CONTRACT, eventName, fromBlock, toBlock) {
     if (fromBlock === null || toBlock === null) {
         return null;
     }
+    // always fetch over HTTP, even if the passed contract is bound to the WS provider
+    const HTTP_CONTRACT = new (getWeb3HttpProvider().eth.Contract)(CONTRACT.options.jsonInterface, CONTRACT.options.address);
     let retries = 0;
     const maxRetries = 12;
     let EVENT_ARRAY = [];
     while (retries < maxRetries) {
         try {
-            const events = await CONTRACT.getPastEvents(eventName, { fromBlock, toBlock });
+            const events = await HTTP_CONTRACT.getPastEvents(eventName, { fromBlock, toBlock });
             for (const DATA of events) {
                 EVENT_ARRAY.push(DATA);
             }
